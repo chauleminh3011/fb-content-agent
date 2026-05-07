@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { generateOpenAIImage, hasOpenAIConfig } from "@/lib/openai";
+import { generateChatGPTOAuthImage, hasChatGPTOAuthImageConfig } from "@/lib/chatgpt-image";
 
 export const maxDuration = 60;
 
@@ -14,87 +16,138 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const imagePrompt = `Create a polished square Facebook image for this post.
+
+Canvas:
+- Square composition for Facebook feed.
+- Bold editorial visual style, high contrast, modern Vietnamese social commentary mood.
+- Use the post insight as the core concept.
+- If adding text, keep it short, large, readable, and in Vietnamese when the post is Vietnamese.
+- Avoid tiny paragraphs, clutter, fake UI, fake logos, or misleading screenshots.
+- Do not include Facebook branding.
+
+Title/context:
+${title || ""}
+
+Format:
+${format || "satire"}
+
+Post:
+${postContent}`;
+
+    // Priority 1: ChatGPT OAuth (gpt-image-2 via ChatGPT Plus subscription, no API key needed)
+    if (hasChatGPTOAuthImageConfig()) {
+      try {
+        const image = await generateChatGPTOAuthImage(imagePrompt);
+        return NextResponse.json({ image });
+      } catch (error) {
+        console.error("chatgpt_oauth image failed, falling back:", error instanceof Error ? error.message : error);
+      }
+    }
+
+    let openAIImageError: string | null = null;
+
+    // Priority 2: OpenAI Platform API key (if configured)
+    if (hasOpenAIConfig()) {
+      try {
+        const image = await generateOpenAIImage(imagePrompt);
+        return NextResponse.json({ image });
+      } catch (error) {
+        openAIImageError = error instanceof Error ? error.message : "OpenAI image generation failed";
+        if (!process.env.ANTHROPIC_API_KEY) {
+          return NextResponse.json(
+            { error: openAIImageError },
+            { status: 500 }
+          );
+        }
+      }
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json(
+        { error: "OpenAI image credentials not configured. Set OPENAI_OAUTH_ACCESS_TOKEN or OPENAI_API_KEY. For Satori fallback, set ANTHROPIC_API_KEY." },
+        { status: 500 }
+      );
+    }
+
     const client = new Anthropic();
 
-    // Ask Claude to generate structured data for the infographic
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5",
       max_tokens: 4096,
       messages: [
         {
           role: "user",
-          content: `You are an infographic designer for LinkedIn posts. Create structured data for a branded infographic.
+          content: `Bạn là designer infographic cho Facebook. Tạo structured data để render một ảnh infographic ấn tượng.
 
-## Brand Design System
-- Background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%)
-- Primary color: #3b82f6 (blue-500)
-- Accent gradient: linear-gradient(135deg, #1e3a8a, #2563eb)
-- Heading text: #ffffff
-- Body text: #94a3b8
-- Accent text: #60a5fa
-- Card background: rgba(30, 58, 138, 0.3) with border 1px solid rgba(59, 130, 246, 0.2)
-- Border radius: 12px
-- Font: Space Grotesk for headings, Inter for body
-- Size: 1080x1350px
-- "SP" avatar badge in top-left corner
+## Design System
+- Background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)
+- Primary color: #e94560 (đỏ-hồng nổi bật)
+- Accent: #0f3460 (xanh navy đậm)
+- Card background: rgba(15, 52, 96, 0.4) với border rgba(233, 69, 96, 0.25)
+- Text heading: #ffffff
+- Text body: #a8b2d8
+- Text highlight: #e94560
+- Border radius: 16px
+- Size: 1080x1080px (Facebook Square)
+- Style: Tối giản, tương phản cao, chữ lớn, impactful
 
-## Post Content
+## Nội dung bài viết
 ${postContent}
 
-## Post Title (for header)
+## Tiêu đề (cho header)
 ${title || ""}
 
 ## Format
-${format || "toplist"}
+${format || "satire"}
 
-## Instructions
-Extract the key data points from the post and return a JSON object for rendering.
+## Hướng dẫn
+Trích xuất các điểm dữ liệu/insight chính từ bài viết và trả về JSON để render.
 
-Return ONLY valid JSON, no markdown:
+Chú ý:
+- Với "satire" hoặc "life-observation": dùng style "quote" — highlight 1-2 câu mỉa mai/sâu sắc nhất, và 2-3 điểm quan sát
+- Với "toplist": dùng style "grid" hoặc "list", 4-8 items
+- Với "pov": dùng style "statement" — câu tuyên bố lớn + 2-3 backing points
+- Với "case-study": dùng style "list", 3-5 items narrative arc
+- Với "how-to": dùng style "steps", 3-6 bước
+
+Trả về ONLY valid JSON, không markdown:
 {
-  "headline": "Short punchy headline (max 60 chars)",
-  "subheadline": "One line context (max 80 chars)",
+  "headline": "Câu tiêu đề ngắn gọn, impactful (tối đa 60 ký tự)",
+  "subheadline": "Một dòng context (tối đa 80 ký tự)",
+  "quote": "Câu mỉa mai/sâu sắc nhất từ bài (nếu format là satire/life-observation, tối đa 120 ký tự)",
   "items": [
     {
-      "label": "Item name",
-      "value": "Key metric/detail",
-      "detail": "Optional extra context"
+      "label": "Tên mục",
+      "value": "Số liệu/chi tiết chính",
+      "detail": "Context thêm (optional)"
     }
   ],
-  "footer": "Takeaway line or CTA (max 80 chars)",
-  "style": "grid" | "list" | "single"
-}
-
-- For toplist: use "grid" or "list" style, 4-8 items
-- For POV: use "single" style, 2-3 key stats as items
-- For case-study: use "list" style, 3-5 items showing the narrative arc
-- Keep text concise — this is visual, not a wall of text`,
+  "footer": "Câu kết hoặc tagline (tối đa 80 ký tự)",
+  "style": "quote" | "grid" | "list" | "statement" | "steps"
+}`,
         },
       ],
     });
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
-    const jsonMatch = text.match(/\{[\s\S]*?\}(?=[^}]*$)/);
-    if (!jsonMatch) {
+
+    // Try extracting JSON
+    let infographicData;
+    const greedyMatch = text.match(/\{[\s\S]*\}/);
+    if (!greedyMatch) {
       return NextResponse.json(
         { error: "Failed to generate infographic data" },
         { status: 500 }
       );
     }
-
-    let infographicData;
     try {
-      infographicData = JSON.parse(jsonMatch[0]);
-    } catch {
-      // Try greedy match as fallback
-      const greedyMatch = text.match(/\{[\s\S]*\}/);
-      if (!greedyMatch) {
-        return NextResponse.json(
-          { error: "Failed to parse infographic JSON" },
-          { status: 500 }
-        );
-      }
       infographicData = JSON.parse(greedyMatch[0]);
+    } catch {
+      return NextResponse.json(
+        { error: "Failed to parse infographic JSON" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ infographic: infographicData });
