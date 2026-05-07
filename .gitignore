@@ -43,3 +43,8 @@ next-env.d.ts
 CLAUDE.md
 AGENTS.md
 .claude-lock/
+.codex-review/
+.commandcode/
+
+# personal notes (may contain local tokens/paths)
+note.md
