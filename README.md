@@ -32,12 +32,25 @@ Topic
   → gpt-image-2 generates a matching image (ChatGPT OAuth, no API key needed)
 ```
 
+## Platform-Agnostic by Design
+
+This pipeline is a **standalone HTTP service** — it doesn't depend on any specific AI agent platform. Use it with:
+
+- **[GoClaw](https://goclaw.io)** — call via skill system (`exec` tool + Python script)
+- **[OpenClaw](https://github.com/nicekid1/OpenClaw)** — integrate through the GET/POST API
+- **[Hermes Claw](https://github.com/pinkforest/hermes-claw)** — connect as an external tool
+- **Any agent framework** — anything that can make HTTP requests works (LangChain, CrewAI, AutoGen, custom bots, etc.)
+- **No agent at all** — use the web UI at `localhost:3002` or call the API directly with `curl`
+
+The API speaks plain text and JSON. No SDKs, no vendor lock-in, no special protocols.
+
 ## Key Differentiators
 
 - **Research-backed content** — every post is grounded in real articles, real data, real sources. Not hallucinated.
 - **6 specialized formats** — each with its own prompt template, structure, and examples tuned for Facebook engagement.
 - **Vietnamese-native writing** — prompts are written in Vietnamese, not translated. The output reads like a native speaker, not a machine.
 - **Image generation via ChatGPT OAuth** — uses your ChatGPT Plus subscription to generate images with gpt-image-2. No separate OpenAI Platform API key required.
+- **Platform-agnostic** — works with any AI agent framework or standalone. Just HTTP.
 - **3-tier image fallback** — ChatGPT OAuth → OpenAI Platform API → Satori server-side infographic.
 - **Topic anchoring** — the AI is explicitly instructed to stay on-topic, even when research articles drift.
 
