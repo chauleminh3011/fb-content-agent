@@ -79,7 +79,7 @@ The API speaks plain text and JSON. No SDKs, no vendor lock-in, no special proto
 ## Getting Started
 
 ```bash
-git clone https://github.com/chauleminh3011/fb-content-agent
+git clone https://github.com/mckazzy/fb-content-agent
 cd fb-content-agent
 npm install
 cp .env.example .env.local
