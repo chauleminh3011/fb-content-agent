@@ -1,6 +1,6 @@
 import { BRAND_CONTEXT, FACEBOOK_WRITING_PRINCIPLES } from "../context";
 import type { ResearchArticle, PostLength, ContentLanguage } from "../types";
-import { lengthGuide, buildContextSection, buildMultiPostNote, buildLanguageSection } from "./shared";
+import { lengthGuide, buildContextSection, buildMultiPostNote, buildLanguageSection, buildTopicSection } from "./shared";
 
 export function satirePropmt(
   article: ResearchArticle,
@@ -10,7 +10,8 @@ export function satirePropmt(
   totalPosts?: number,
   tone: string = "satire",
   customTone?: string,
-  language: ContentLanguage = "vn"
+  language: ContentLanguage = "vn",
+  topic?: string
 ): string {
   const customToneSection = tone === "custom" && customTone
     ? `## Giọng Văn Tùy Chỉnh\n${customTone}`
@@ -30,6 +31,8 @@ Viết một bài Facebook theo phong cách MỈA MAI XÃ HỘI (Social Satire).
 - Làm người đọc vừa cười vừa "ừ đúng thật"
 
 ${buildContextSection(article, allArticles)}${buildMultiPostNote(postIndex, totalPosts)}
+
+${buildTopicSection(topic)}
 
 ${customToneSection}
 

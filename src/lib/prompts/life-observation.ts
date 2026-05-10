@@ -1,6 +1,6 @@
 import { BRAND_CONTEXT, FACEBOOK_WRITING_PRINCIPLES } from "../context";
 import type { ResearchArticle, PostLength, ContentLanguage } from "../types";
-import { lengthGuide, buildContextSection, buildMultiPostNote, buildLanguageSection } from "./shared";
+import { lengthGuide, buildContextSection, buildMultiPostNote, buildLanguageSection, buildTopicSection } from "./shared";
 
 export function lifeObservationPrompt(
   article: ResearchArticle,
@@ -10,7 +10,8 @@ export function lifeObservationPrompt(
   totalPosts?: number,
   tone: string = "reflective",
   customTone?: string,
-  language: ContentLanguage = "vn"
+  language: ContentLanguage = "vn",
+  topic?: string
 ): string {
   const toneMap: Record<string, string> = {
     reflective: "Chiêm nghiệm, sâu sắc. Nói như người đã từng trải qua, không dạy đời. Giọng nhẹ nhàng nhưng để lại dư âm.",
@@ -40,6 +41,8 @@ Bài viết cần:
 - Chạm đến cảm xúc phổ quát: ai đọc cũng thấy mình trong đó
 
 ${buildContextSection(article, allArticles)}${buildMultiPostNote(postIndex, totalPosts)}
+
+${buildTopicSection(topic)}
 
 ## Giọng Văn
 ${activeTone}

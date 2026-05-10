@@ -1,6 +1,6 @@
 import { BRAND_CONTEXT } from "../context";
 import type { ResearchArticle, PostLength, ContentLanguage } from "../types";
-import { lengthGuide, buildContextSection, buildMultiPostNote, buildToneSection, buildLanguageSection } from "./shared";
+import { lengthGuide, buildContextSection, buildMultiPostNote, buildToneSection, buildLanguageSection, buildTopicSection } from "./shared";
 
 export function povPrompt(
   article: ResearchArticle,
@@ -8,36 +8,38 @@ export function povPrompt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "default",
+  tone: string = "provocative",
   customTone?: string,
-  language: ContentLanguage = "en"
+  language: ContentLanguage = "vn",
+  topic?: string
 ): string {
   return `${BRAND_CONTEXT}
 
-## Task
-Write a LinkedIn POV (Point of View / Hot Take) post. Argue a clear, opinionated perspective backed by data.
+## Nhiệm vụ
+Viết một bài Facebook dạng POV (Point of View / Góc Nhìn Cá Nhân). Tranh luận một quan điểm rõ ràng, dũng cảm, được backup bởi dữ liệu.
 
 ${buildContextSection(article, allArticles)}${buildMultiPostNote(postIndex, totalPosts)}
+
+${buildTopicSection(topic)}
 
 ${buildToneSection(tone, customTone)}
 
 ${buildLanguageSection(language)}
 
-## POV Format Structure
-1. HOOK (1-2 lines): Contrarian or bold opening that challenges conventional wisdom
-2. DATA (3-5 lines): Evidence with specific numbers, company names, dollar amounts
-3. ANALYSIS (3-5 lines): What this actually means. Connect the dots.
-4. PREDICTION/STANCE (2-3 lines): Take a clear position. Don't hedge.
-5. CTA: Provocative question to drive comments
+## Cấu Trúc POV Facebook
+1. HOOK (2-3 dòng): Mở bằng quan điểm phản chiều hoặc táo bạo — thách thức niềm tin thông thường
+2. DỮ LIỆU (3-5 dòng): Bằng chứng với số liệu cụ thể, tên công ty, sự kiện thực tế
+3. PHÂN TÍCH (3-5 dòng): Cái này thực sự có nghĩa gì. Kết nối các điểm lại.
+4. STANCE (2-3 dòng): Khẳng định quan điểm. Không hedge. Không "có thể" hay "có lẽ".
+5. CTA: Câu hỏi kích thích tranh luận trong comment
 
-## Length
+## Độ Dài
 ${lengthGuide[length]}
 
-## Constraints
-- Must argue ONE clear thesis, not a balanced overview
-- Use specific data to support every claim
-- Short paragraphs, 1-2 sentences each
-- No bullet points for POV, this is narrative
-- ZERO asterisks (*) in output. No bold markdown. No ** anywhere. This is non-negotiable.
-- No em dashes. No URLs. Plain text only.`;
+## Quy Tắc Bắt Buộc
+- Phải tranh luận cho MỘT luận điểm rõ ràng, không phải overview cân bằng
+- Dùng dữ liệu cụ thể để support mọi claim
+- Đoạn ngắn, 1-2 câu mỗi đoạn, narrative không bullet point
+- TUYỆT ĐỐI không dùng * hay ** hay # — không markdown bất kỳ loại nào
+- Không em dash (—). Không URL. Plain text hoàn toàn.`;
 }

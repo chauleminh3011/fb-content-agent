@@ -1,6 +1,6 @@
 import { BRAND_CONTEXT } from "../context";
 import type { ResearchArticle, PostLength, ContentLanguage } from "../types";
-import { lengthGuide, buildContextSection, buildMultiPostNote, buildToneSection, buildLanguageSection } from "./shared";
+import { lengthGuide, buildContextSection, buildMultiPostNote, buildToneSection, buildLanguageSection, buildTopicSection } from "./shared";
 
 export function caseStudyPrompt(
   article: ResearchArticle,
@@ -8,37 +8,40 @@ export function caseStudyPrompt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "default",
+  tone: string = "analytical",
   customTone?: string,
-  language: ContentLanguage = "en"
+  language: ContentLanguage = "vn",
+  topic?: string
 ): string {
   return `${BRAND_CONTEXT}
 
-## Task
-Write a LinkedIn Case Study post. Deep-dive into ONE specific company/event with a narrative arc.
+## Nhiệm vụ
+Viết một bài Facebook dạng CASE STUDY — deep-dive vào MỘT công ty/sự kiện với narrative arc rõ ràng.
 
 ${buildContextSection(article, allArticles)}${buildMultiPostNote(postIndex, totalPosts)}
+
+${buildTopicSection(topic)}
 
 ${buildToneSection(tone, customTone)}
 
 ${buildLanguageSection(language)}
 
-## Case Study Format Structure
-1. HOOK (1-2 lines): Lead with the most impressive metric or outcome
-2. CONTEXT (2-3 lines): What problem existed. What the market looked like.
-3. WHAT THEY DID (3-5 lines): Specific strategy, names, numbers, partners
-4. RESULTS (2-3 lines): Concrete outcomes, metrics
-5. LESSON (2-3 lines): The non-obvious takeaway
-6. CTA: Question or Affitor mention
+## Cấu Trúc Case Study Facebook
+1. HOOK (2-3 dòng): Mở bằng kết quả/con số ấn tượng nhất — bắt người đọc tự hỏi "sao lại được vậy?"
+2. CONTEXT (2-3 dòng): Vấn đề ban đầu là gì. Thị trường trông như thế nào trước đó.
+3. HỌ ĐÃ LÀM GÌ (3-5 dòng): Chiến lược cụ thể — tên, số liệu, đối tác, timeline
+4. KẾT QUẢ (2-3 dòng): Con số kết quả cụ thể
+5. BÀI HỌC (2-3 dòng): Takeaway không hiển nhiên — không phải "kiên trì sẽ thành công"
+6. CTA: Câu hỏi hoặc quan sát mở
 
-## Length
+## Độ Dài
 ${lengthGuide[length]}
 
-## Constraints
-- Focus on ONE company/entity, depth over breadth
-- Problem → Action → Result → Lesson arc
-- Use specific numbers throughout
-- Short paragraphs, narrative style
-- ZERO asterisks (*) in output. No bold markdown. No ** anywhere. This is non-negotiable.
-- No em dashes. No URLs. Plain text only.`;
+## Quy Tắc Bắt Buộc
+- Focus vào MỘT công ty/thực thể duy nhất, chiều sâu hơn chiều rộng
+- Arc: Vấn đề → Hành động → Kết quả → Bài học
+- Số liệu cụ thể xuyên suốt
+- Narrative style, đoạn ngắn
+- TUYỆT ĐỐI không dùng * hay ** hay # — không markdown bất kỳ loại nào
+- Không em dash (—). Không URL. Plain text hoàn toàn.`;
 }

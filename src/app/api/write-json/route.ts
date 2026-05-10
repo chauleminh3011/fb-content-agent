@@ -20,7 +20,8 @@ type PromptFn = (
   totalPosts?: number,
   tone?: string,
   customTone?: string,
-  language?: ContentLanguage
+  language?: ContentLanguage,
+  topic?: string
 ) => string;
 
 const promptFns: Record<ContentFormat, PromptFn> = {
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const {
+      topic,
       article,
       format,
       length = "medium",
@@ -48,6 +50,7 @@ export async function POST(req: NextRequest) {
       customTone,
       language = "vn",
     } = (await req.json()) as {
+      topic?: string;
       article: ResearchArticle;
       format: ContentFormat;
       length?: PostLength;
@@ -68,7 +71,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Unknown format: ${format}` }, { status: 400 });
     }
 
-    const prompt = promptFn(article, length, allArticles, postIndex, totalPosts, tone, customTone, language);
+    const prompt = promptFn(article, length, allArticles, postIndex, totalPosts, tone, customTone, language, topic);
     const provider = process.env.AI_PROVIDER || (hasOpenAIConfig() ? "openai" : "anthropic");
 
     if (provider !== "openai" && provider !== "anthropic") {

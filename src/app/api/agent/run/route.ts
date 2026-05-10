@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: authHeaders,
         body: JSON.stringify({
+          topic,
           article,
           format: body.format || "satire",
           length: body.length || "medium",
