@@ -1,8 +1,8 @@
 {
-  "name": "content-pipeline",
+  "name": "fb-content-pipeline",
   "version": "0.1.0",
-  "description": "AI-powered content pipeline: research trending topics, select sources, and generate LinkedIn posts with branded infographics.",
-  "keywords": ["nextjs", "ai", "content-pipeline", "linkedin", "anthropic", "claude", "brave-search", "content-generation"],
+  "description": "AI-powered content pipeline for Facebook posts and 1080x1080 infographics.",
+  "keywords": ["nextjs", "ai", "facebook-pipeline", "facebook", "anthropic", "claude", "brave-search", "content-generation"],
   "author": "Affitor <hello@affitor.com> (https://affitor.com)",
   "license": "MIT",
   "repository": {
@@ -14,9 +14,9 @@
     "url": "https://github.com/Affitor/content-pipeline/issues"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3002",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3002",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit"

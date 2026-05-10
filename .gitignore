@@ -46,5 +46,8 @@ AGENTS.md
 .codex-review/
 .commandcode/
 
+# runtime generated images
+/public/generated/
+
 # personal notes (may contain local tokens/paths)
 note.md

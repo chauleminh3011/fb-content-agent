@@ -104,10 +104,17 @@ function openAIHeaders(token: string, label: string) {
     throw new Error(`${label} credentials not configured.`);
   }
 
-  return {
+  const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
+
+  // GoClaw bridge requires X-GoClaw-User-Id header
+  if (getOpenAITextRequestFormat() === "goclaw") {
+    headers["X-GoClaw-User-Id"] = process.env.GOCLAW_USER_ID || "fb-content-pipeline";
+  }
+
+  return headers;
 }
 
 function openAITextHeaders() {
@@ -116,6 +123,13 @@ function openAITextHeaders() {
 
 function openAIImageHeaders() {
   return openAIHeaders(getOpenAIImageToken(), "OpenAI image");
+}
+
+function getTextEndpoint() {
+  const base = getOpenAITextBaseUrl();
+  return getOpenAITextRequestFormat() === "goclaw"
+    ? `${base}/chat/completions`
+    : `${base}/responses`;
 }
 
 function textRequestBody(prompt: string, stream: boolean) {
@@ -137,7 +151,8 @@ function textRequestBody(prompt: string, stream: boolean) {
 }
 
 export async function* streamOpenAIText(prompt: string): AsyncGenerator<string> {
-  const res = await fetch(`${getOpenAITextBaseUrl()}/responses`, {
+  const isGoClaw = getOpenAITextRequestFormat() === "goclaw";
+  const res = await fetch(getTextEndpoint(), {
     method: "POST",
     headers: openAITextHeaders(),
     body: JSON.stringify(textRequestBody(prompt, true)),
@@ -172,26 +187,28 @@ export async function* streamOpenAIText(prompt: string): AsyncGenerator<string> 
       for (const data of dataLines) {
         if (!data || data === "[DONE]") continue;
 
-        const event = JSON.parse(data) as {
-          type?: string;
-          delta?: string | { content?: string };
-          error?: { message?: string };
-        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const event = JSON.parse(data) as any;
 
-        if (event.type === "response.output_text.delta" && typeof event.delta === "string") {
-          yield event.delta;
-        }
-
-        if (event.type === "response.delta") {
-          if (typeof event.delta === "string") {
+        if (isGoClaw) {
+          // Chat completions stream format: choices[0].delta.content
+          const content = event.choices?.[0]?.delta?.content;
+          if (typeof content === "string") yield content;
+        } else {
+          // OpenAI responses format
+          if (event.type === "response.output_text.delta" && typeof event.delta === "string") {
             yield event.delta;
-          } else if (typeof event.delta?.content === "string") {
-            yield event.delta.content;
           }
-        }
-
-        if (event.type === "error") {
-          throw new Error(event.error?.message || "OpenAI stream failed.");
+          if (event.type === "response.delta") {
+            if (typeof event.delta === "string") {
+              yield event.delta;
+            } else if (typeof event.delta?.content === "string") {
+              yield event.delta.content;
+            }
+          }
+          if (event.type === "error") {
+            throw new Error(event.error?.message || "OpenAI stream failed.");
+          }
         }
       }
     }
@@ -199,7 +216,7 @@ export async function* streamOpenAIText(prompt: string): AsyncGenerator<string> 
 }
 
 export async function createOpenAIText(prompt: string): Promise<string> {
-  const res = await fetch(`${getOpenAITextBaseUrl()}/responses`, {
+  const res = await fetch(getTextEndpoint(), {
     method: "POST",
     headers: openAITextHeaders(),
     body: JSON.stringify(textRequestBody(prompt, false)),
@@ -209,22 +226,25 @@ export async function createOpenAIText(prompt: string): Promise<string> {
     throw new Error(await parseOpenAIError(res));
   }
 
-  const body = (await res.json()) as {
-    output_text?: string;
-    output?: Array<{
-      content?: Array<{
-        type?: string;
-        text?: string;
-      }>;
-    }>;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body = (await res.json()) as any;
 
+  // GoClaw chat completions format
+  if (getOpenAITextRequestFormat() === "goclaw") {
+    const text = body.choices?.[0]?.message?.content;
+    if (!text) throw new Error("GoClaw response did not include content.");
+    return text;
+  }
+
+  // OpenAI responses format
   if (body.output_text) return body.output_text;
 
   const text = body.output
-    ?.flatMap((item) => item.content || [])
-    .filter((content) => (content.type === "output_text" || content.type === "text") && content.text)
-    .map((content) => content.text)
+    ?.flatMap((item: { content?: Array<{ type?: string; text?: string }> }) => item.content || [])
+    .filter((content: { type?: string; text?: string }) =>
+      (content.type === "output_text" || content.type === "text") && content.text
+    )
+    .map((content: { type?: string; text?: string }) => content.text)
     .join("");
 
   if (!text) {
