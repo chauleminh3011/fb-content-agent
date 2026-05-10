@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       allArticles,
       postIndex,
       totalPosts,
-      tone = "satire",
+      tone = "mia-mai",
       customTone,
       language = "vn",
     } = (await req.json()) as {

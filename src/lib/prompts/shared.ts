@@ -9,11 +9,11 @@ export const lengthGuide: Record<PostLength, string> = {
 
 // Facebook-optimized tone guides
 export const toneGuide: Record<string, string> = {
-  satire: "Giọng mỉa mai thông minh. Chua cay nhưng không độc ác. Quan sát hiện tượng rồi lật ngược — làm người đọc vừa cười vừa 'ừ đúng thật'. Không phán xét đạo đức, chỉ mô tả thực tế.",
-  reflective: "Giọng chiêm nghiệm. Nói như người đã từng trải, không dạy đời. Nhẹ nhàng nhưng để lại dư âm. Dùng 'chúng ta' để tạo đồng cảm.",
-  provocative: "Nói thẳng, không ngại gây khó chịu. Sự thật không phải lúc nào cũng dễ nghe. Câu ngắn, mạnh, quyết. Gây tranh luận nhẹ để tăng comment.",
-  storytelling: "Bắt đầu bằng chi tiết cụ thể nhỏ, dẫn vào insight lớn hơn. Narrative arc rõ: cụ thể → pattern → sự thật phổ quát.",
-  analytical: "Dữ liệu, logic, pattern recognition. Như nhà xã hội học viết cho người thông minh: không phán xét, chỉ mô tả và phân tích.",
+  "mia-mai": "Giọng mỉa mai thông minh. Chua cay nhưng không độc ác. Quan sát hiện tượng rồi lật ngược — làm người đọc vừa cười vừa 'ừ đúng thật'. Không phán xét đạo đức, chỉ mô tả thực tế.",
+  "chiem-nghiem": "Giọng chiêm nghiệm. Nói như người đã từng trải, không dạy đời. Nhẹ nhàng nhưng để lại dư âm. Dùng 'chúng ta' để tạo đồng cảm.",
+  "thang-than": "Nói thẳng, không ngại gây khó chịu. Sự thật không phải lúc nào cũng dễ nghe. Câu ngắn, mạnh, quyết. Gây tranh luận nhẹ để tăng comment.",
+  "ke-chuyen": "Bắt đầu bằng chi tiết cụ thể nhỏ, dẫn vào insight lớn hơn. Narrative arc rõ: cụ thể → pattern → sự thật phổ quát.",
+  "phan-tich": "Dữ liệu, logic, pattern recognition. Như nhà xã hội học viết cho người thông minh: không phán xét, chỉ mô tả và phân tích.",
   default: "Data-driven, tự tin, dễ tiếp cận. Không học thuật, không hype. Thực tế và cụ thể.",
 };
 

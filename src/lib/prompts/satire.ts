@@ -8,7 +8,7 @@ export function satirePropmt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "satire",
+  tone: string = "mia-mai",
   customTone?: string,
   language: ContentLanguage = "vn",
   topic?: string

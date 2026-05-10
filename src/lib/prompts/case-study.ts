@@ -8,7 +8,7 @@ export function caseStudyPrompt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "analytical",
+  tone: string = "phan-tich",
   customTone?: string,
   language: ContentLanguage = "vn",
   topic?: string

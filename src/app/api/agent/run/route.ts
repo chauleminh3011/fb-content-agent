@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
           allArticles: selected,
           postIndex: i,
           totalPosts: outputCount,
-          tone: body.tone || "satire",
+          tone: body.tone || "mia-mai",
           customTone: body.customTone,
           language: body.language || "vn",
         }),

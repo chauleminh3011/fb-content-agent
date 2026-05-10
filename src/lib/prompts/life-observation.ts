@@ -8,22 +8,22 @@ export function lifeObservationPrompt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "reflective",
+  tone: string = "chiem-nghiem",
   customTone?: string,
   language: ContentLanguage = "vn",
   topic?: string
 ): string {
   const toneMap: Record<string, string> = {
-    reflective: "Chiêm nghiệm, sâu sắc. Nói như người đã từng trải qua, không dạy đời. Giọng nhẹ nhàng nhưng để lại dư âm.",
-    provocative: "Nói thẳng, không ngại gây khó chịu. Sự thật không phải lúc nào cũng dễ nghe. Mạnh, rõ, quyết.",
-    satire: "Hài hước mỉa mai nhưng không độc ác. Cười về bản thân xã hội và cả chính người viết.",
-    storytelling: "Bắt đầu bằng một chi tiết nhỏ cụ thể, dẫn vào insight lớn hơn. Narrative arc rõ ràng.",
-    analytical: "Quan sát như một nhà xã hội học: không phán xét, chỉ mô tả và phân tích pattern.",
+    "chiem-nghiem": "Chiêm nghiệm, sâu sắc. Nói như người đã từng trải qua, không dạy đời. Giọng nhẹ nhàng nhưng để lại dư âm.",
+    "thang-than": "Nói thẳng, không ngại gây khó chịu. Sự thật không phải lúc nào cũng dễ nghe. Mạnh, rõ, quyết.",
+    "mia-mai": "Hài hước mỉa mai nhưng không độc ác. Cười về bản thân xã hội và cả chính người viết.",
+    "ke-chuyen": "Bắt đầu bằng một chi tiết nhỏ cụ thể, dẫn vào insight lớn hơn. Narrative arc rõ ràng.",
+    "phan-tich": "Quan sát như một nhà xã hội học: không phán xét, chỉ mô tả và phân tích pattern.",
   };
 
   const activeTone = tone === "custom" && customTone
     ? customTone
-    : (toneMap[tone] || toneMap.reflective);
+    : (toneMap[tone] || toneMap["chiem-nghiem"]);
 
   return `${BRAND_CONTEXT}
 

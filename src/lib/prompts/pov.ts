@@ -8,7 +8,7 @@ export function povPrompt(
   allArticles?: ResearchArticle[],
   postIndex?: number,
   totalPosts?: number,
-  tone: string = "provocative",
+  tone: string = "thang-than",
   customTone?: string,
   language: ContentLanguage = "vn",
   topic?: string
