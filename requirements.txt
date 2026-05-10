@@ -1,0 +1,5 @@
+# Python dependencies for image generation (ChatGPT OAuth via media-tools)
+# The main app is Node.js — run `npm install` for JS dependencies.
+# Python 3.8+ required.
+
+requests>=2.28.0
